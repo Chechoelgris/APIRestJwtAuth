@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APIRest.Controllers
@@ -16,6 +17,7 @@ namespace APIRest.Controllers
         }
 
         [HttpGet(Name = "test")]
+        [Authorize]
         public IActionResult Get()
         {
             return Ok("ok ok");
