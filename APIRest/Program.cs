@@ -1,4 +1,6 @@
 using Core.Entities.AuthEntities;
+using Core.Interfaces.IServices;
+using Core.Services;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -74,6 +76,11 @@ builder.Services.AddAuthentication(options => {
             System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:SigninKey"]))
     };
 });
+
+
+// Dependency Inyection
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
