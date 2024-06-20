@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240620094254_AddCarrerasModule")]
+    partial class AddCarrerasModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -97,43 +100,15 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Carreras", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Descripcion = "Carrera enfocada en el desarrollo de sistemas informáticos.",
-                            Nombre = "Ingeniería de Sistemas"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Descripcion = "Carrera enfocada en la construcción y mantenimiento de infraestructuras.",
-                            Nombre = "Ingeniería Civil"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Descripcion = "Carrera enfocada en el estudio y práctica de la medicina.",
-                            Nombre = "Medicina"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Descripcion = "Carrera enfocada en el estudio del ser humano y su mundo psiquico.",
-                            Nombre = "Psicología"
-                        });
+                    b.ToTable("Carreras");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -165,25 +140,25 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "848c5383-f2cb-46ff-b474-f1fe083370d8",
+                            Id = "465f589b-f8ff-46e2-b7bd-de48562539c0",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "89a07350-a075-4d5a-9c21-4915e12e7e78",
+                            Id = "6c22f01c-b759-4000-ae64-74571ee42990",
                             Name = "GestorInstitucion",
                             NormalizedName = "GESTORINSTITUCION"
                         },
                         new
                         {
-                            Id = "2b91e46f-64b2-4705-8414-57c72d01ea62",
+                            Id = "49022304-12aa-4f49-92f3-ce64594de0c5",
                             Name = "Profesor",
                             NormalizedName = "PROFESOR"
                         },
                         new
                         {
-                            Id = "0912d911-3e98-497b-aa96-1ed7bc922195",
+                            Id = "f430ce03-a4ea-4754-b6ce-fdb41c534c95",
                             Name = "Estudiante",
                             NormalizedName = "ESTUDIANTE"
                         });

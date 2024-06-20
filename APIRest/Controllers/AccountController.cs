@@ -2,9 +2,11 @@
 using Core.DTOs.Account;
 using Core.Entities.AuthEntities;
 using Core.Interfaces.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace APIRest.Controllers
 {
@@ -15,11 +17,13 @@ namespace APIRest.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;            
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost("login")]
@@ -39,7 +43,7 @@ namespace APIRest.Controllers
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = await _tokenService.CreateToken(user)
                 }
             );
         }
@@ -48,7 +52,6 @@ namespace APIRest.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-
             try
             {
                 if (!ModelState.IsValid)
@@ -58,29 +61,34 @@ namespace APIRest.Controllers
                 {
                     UserName = registerDto.Username,
                     Email = registerDto.Email,
-
                 };
 
                 var createUser = await _userManager.CreateAsync(appUser, registerDto.Password);
 
                 if (createUser.Succeeded)
                 {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+                    var role = !string.IsNullOrEmpty(registerDto.Role) ? registerDto.Role : "Estudiante";
+
+                    if (!await _roleManager.RoleExistsAsync(role))
+                    {
+                        return BadRequest("Role does not exist");
+                    }
+
+                    var roleResult = await _userManager.AddToRoleAsync(appUser, role);
                     if (roleResult.Succeeded)
                     {
-                        return Ok(
-                            new NewUserDto
-                            {
-                                UserName=appUser.UserName,
-                                Email= appUser.Email,
-                                Token=_tokenService.CreateToken(appUser)
-                            });
+                        var token = await _tokenService.CreateToken(appUser);
+                        return Ok(new NewUserDto
+                        {
+                            UserName = appUser.UserName,
+                            Email = appUser.Email,
+                            Token = token
+                        });
                     }
                     else
                     {
                         return StatusCode(500, roleResult.Errors);
                     }
-
                 }
                 else
                 {
@@ -91,9 +99,33 @@ namespace APIRest.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
-        
+
+        [HttpGet("userinfo")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email == null)
+            {
+                return Unauthorized("User is not authenticated");
+            }
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = roles
+            });
+        }
 
     }
 }

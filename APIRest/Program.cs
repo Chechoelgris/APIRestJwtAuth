@@ -1,13 +1,18 @@
 using Core.Entities.AuthEntities;
+using Core.Interfaces.IRepositories;
 using Core.Interfaces.IServices;
 using Core.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +22,15 @@ var _configuration = new ConfigurationBuilder()
                 .AddJsonFile(@"appsettings.Development.json", false, true)
                 .Build();
 
-// Add services to the container.
 
-builder.Services.AddControllers();
+// Add services to the container.
+builder.Services.AddControllers()
+    .AddNewtonsoftJson()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Program>()); // Cambia a Program si usas .NET 6 o superior
+
+// Agrega validadores desde el ensamblado que contiene tu Program
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
@@ -82,7 +93,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Password.RequiredLength = 12;
 
 }).AddEntityFrameworkStores<ApplicationDbContext>();
-
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SigninKey"]));
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme =
     options.DefaultChallengeScheme =
@@ -101,16 +112,42 @@ builder.Services.AddAuthentication(options => {
         ValidateAudience = true,
         ValidAudience = _configuration["Jwt:Audience"],
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            System.Text.Encoding.UTF8.GetBytes(_configuration["Jwt:SigninKey"]))
+        IssuerSigningKey = key
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireGestorRole", policy => policy.RequireRole("GestorInstitucion"));
+    options.AddPolicy("RequireProfesorRole", policy => policy.RequireRole("Profesor"));
+    options.AddPolicy("RequireEstudianteRole", policy => policy.RequireRole("Estudiante"));
+});
 
 // Dependency Inyection
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ICarreraService, CarreraService>();
+builder.Services.AddScoped<ICarreraRepository, CarreraRepository>();
+
 
 var app = builder.Build();
+
+// Ensure roles are created
+// Ensure roles are created
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var roles = new[] { "Admin", "GestorInstitucion", "Profesor", "Estudiante" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new IdentityRole(role));
+        }
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

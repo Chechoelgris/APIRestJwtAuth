@@ -1,0 +1,12 @@
+﻿using Core.DTOs;
+using FluentValidation;
+
+public class RegisterDtoValidator : AbstractValidator<RegisterDto>
+{
+    public RegisterDtoValidator()
+    {
+        RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required");
+        RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required").EmailAddress().WithMessage("Invalid Email Address");
+        RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");
+    }
+}

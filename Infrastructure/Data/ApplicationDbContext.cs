@@ -1,4 +1,6 @@
-﻿using Core.Entities.AuthEntities;
+﻿using Core.Entities;
+using Core.Entities.AuthEntities;
+using Infrastructure.Data.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,30 +13,18 @@ namespace Infrastructure.Data
             : base(options)
         {
         }
-
+        public DbSet<Carrera> Carreras { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            List<IdentityRole> roles = new List<IdentityRole>
-            {
-                new IdentityRole
-                {
-                    Name="Admin",
-                    NormalizedName="ADMIN"
-                },
-                 new IdentityRole
-                {
-                    Name="Client",
-                    NormalizedName="CLIENT"
-                },
-                  new IdentityRole
-                {
-                    Name="User",
-                    NormalizedName="USER"
-                }
-            };
-            builder.Entity<IdentityRole>().HasData(roles);
+            // Aplicar la configuración de los roles
+            builder.ApplyConfiguration(new RolesConfiguration());
+
+            // Aplicar la configuración de la entidad Carrera
+            builder.ApplyConfiguration(new CarrerasConfiguration());
+
+
         }
     }
 }

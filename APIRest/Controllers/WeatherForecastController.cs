@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace APIRest.Controllers
 {
+    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/student")]
     public class WeatherForecastController : ControllerBase
     {
          
@@ -16,8 +17,8 @@ namespace APIRest.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "test")]
-        [Authorize]
+        [Authorize(Policy = "RequireEstudianteRole")]
+        [HttpGet]
         public IActionResult Get()
         {
             return Ok("ok ok");

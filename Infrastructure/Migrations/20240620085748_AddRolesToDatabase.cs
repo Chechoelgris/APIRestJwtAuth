@@ -7,7 +7,7 @@
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedRole : Migration
+    public partial class AddRolesToDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -17,9 +17,10 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "25c791fc-a86c-46b2-8a74-76387cf2e264", null, "Admin", "ADMIN" },
-                    { "3fb8ebaa-fb27-464b-9a44-1535c52109d8", null, "Client", "CLIENT" },
-                    { "9fa69d56-49d2-40b8-9840-ff5ab39074db", null, "User", "USER" }
+                    { "5691e445-752f-405c-a48b-16f83569ed6f", null, "Estudiante", "ESTUDIANTE" },
+                    { "9197a4a6-b091-4dd6-907b-52d7369e397a", null, "Profesor", "PROFESOR" },
+                    { "bf496145-1995-4b32-8a35-fe9a1f5ef1d9", null, "Admin", "ADMIN" },
+                    { "d78719c3-48f3-4464-ae05-a7b8ff707c60", null, "GestorInstitucion", "GESTORINSTITUCION" }
                 });
         }
 
@@ -29,17 +30,22 @@ namespace Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "25c791fc-a86c-46b2-8a74-76387cf2e264");
+                keyValue: "5691e445-752f-405c-a48b-16f83569ed6f");
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "3fb8ebaa-fb27-464b-9a44-1535c52109d8");
+                keyValue: "9197a4a6-b091-4dd6-907b-52d7369e397a");
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "9fa69d56-49d2-40b8-9840-ff5ab39074db");
+                keyValue: "bf496145-1995-4b32-8a35-fe9a1f5ef1d9");
+
+            migrationBuilder.DeleteData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "d78719c3-48f3-4464-ae05-a7b8ff707c60");
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Core.DTOs.Carreras;
+using Core.Entities;
 
 namespace Core.Mappings
 {
@@ -6,7 +8,9 @@ namespace Core.Mappings
     {
         public AutomapperProfile()
         {
-            //CreateMap<Device, DeviceDto>();
+            CreateMap<Carrera, CarreraDto>().ReverseMap();
+            CreateMap<Carrera, CreateCarreraDto>().ReverseMap();
+            CreateMap<Carrera, UpdateCarreraDto>().ReverseMap();
 
         }
     }
